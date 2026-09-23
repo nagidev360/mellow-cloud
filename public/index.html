@@ -1,37 +1,16 @@
 <!doctype html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#15161d"><title>Mellow Cloudy Chill Zone</title><link rel="stylesheet" href="/style.css"></head>
-<body>
-<div class="app-bg"></div>
-<header class="topbar">
-  <button class="icon-btn mobile-only" id="menuBtn" aria-label="Open menu">☰</button>
-  <a class="top-brand" href="#home"><span class="brand-mark">☁</span><span><b>Mellow Cloudy</b><small>Chill Zone</small></span></a>
-  <nav class="top-nav"><a href="#home">Home</a><a href="#channels">Channels</a><a href="#members">Members</a></nav>
-  <div class="top-actions"><button class="icon-btn" title="Search">⌕</button><a class="login-btn" href="/api/login">Login <span>with Discord</span></a></div>
-</header>
-<div class="layout">
-  <aside class="server-rail" id="serverRail"><div class="rail-logo active">☁</div><div class="rail-logo">MC</div><div class="rail-logo">✦</div><div class="rail-logo">N7</div><div class="rail-spacer"></div><div class="rail-logo soft">+</div></aside>
-  <aside class="channel-sidebar">
-    <div class="server-head"><div><strong>☁ · Mellow Cloudy</strong><small>Chill Zone</small></div><button class="chevron">⌄</button></div>
-    <div class="server-search">⌕ <span>Search</span></div>
-    <div class="sidebar-scroll">
-      <div class="boost"><span>Boost Goal</span><b id="boostCount">0/36</b><span>›</span></div>
-      <div class="side-action">☷ <span>Channels &amp; Roles</span></div>
-      <div class="side-action">♢ <span>Server Boosts</span></div>
-      <div id="sideChannels"></div>
-    </div>
-    <div class="user-bar"><div class="user-avatar">N7</div><div><b>NAGI 7⚡</b><small>Idle · mimu</small></div><span>🔔</span></div>
-  </aside>
-  <main class="workspace" id="home">
-    <div class="workspace-head"><div><div class="eyebrow">COMMUNITY HUB</div><h1>☁ Mellow Cloudy Chill Zone</h1><p>32 Members · Community</p></div><div class="head-actions"><a class="action-pill" id="join" target="_blank">Join Server ↗</a><a class="action-pill" href="/api/login">Login</a></div></div>
-    <div class="mobile-tabs"><button class="active">Community</button><button>Media</button><button>Pins</button><button>Links</button></div>
-    <section class="welcome-card"><div><span class="live-dot"></span> LIVE COMMUNITY</div><h2>Find your cloud. Stay. Chill. Connect.</h2><p>A clean community space for conversations, gaming, music and late-night vibes.</p><div class="welcome-actions"><a class="primary" id="join2" target="_blank">Join the Cloud ↗</a><a class="secondary" href="#channels">Explore Channels</a></div></section>
-    <section class="metrics"><div><small>MEMBERS</small><b id="membersCount">—</b></div><div><small>ONLINE</small><b id="onlineCount">—</b></div><div><small>CHANNELS</small><b id="channelsCount">—</b></div><div><small>STATUS</small><b class="online">ONLINE</b></div></section>
-    <section id="channels" class="content-section"><div class="section-title"><div><small>01 · NETWORK</small><h2>Channels</h2></div><span id="channelHint">Live from Discord</span></div><div id="channelGrid" class="channel-grid"></div></section>
-    <section id="members" class="content-section"><div class="section-title"><div><small>02 · COMMUNITY</small><h2>Members</h2></div><span><b id="onlineMini">—</b> online now</span></div><div id="memberGrid" class="member-grid"></div></section>
-  </main>
-  <aside class="member-sidebar"><div class="member-title"><b>Members</b><span id="memberTotal">—</span></div><div class="member-search">⌕ Search members</div><div id="memberSideList"></div></aside>
-</div>
-<div class="mobile-bottom"><a href="#home" class="active">⌂<small>Home</small></a><a href="#channels">#<small>Channels</small></a><a href="#members">◎<small>Members</small></a><a href="/api/login">◉<small>Login</small></a></div>
-<script src="/app.js"></script>
-</body></html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#15161d"><title>Mellow Cloudy Chill Zone</title><link rel="stylesheet" href="/style.css"></head>
+<body><div class="app-bg"></div>
+<header class="topbar"><button class="icon-btn mobile-only" id="menuBtn">☰</button><a class="top-brand" href="#home"><span class="brand-mark">☁</span><span><b>Mellow Cloudy</b><small>Chill Zone</small></span></a><nav class="top-nav"><a href="#home">Home</a><a href="#channels">Channels</a><a href="#roles">Roles</a><a href="#members">Members</a></nav><div class="top-actions"><button class="icon-btn">⌕</button><a class="login-btn" href="/api/login">Login <span>with Discord</span></a></div></header>
+<div class="layout"><aside class="server-rail"><div class="rail-logo active">☁</div><div class="rail-logo">MC</div><div class="rail-logo">✦</div><div class="rail-logo">N7</div><div class="rail-spacer"></div><div class="rail-logo soft">+</div></aside>
+<aside class="channel-sidebar"><div class="server-head"><div><strong>☁ · Mellow Cloudy</strong><small>Chill Zone</small></div></div><div class="server-search">⌕ <span>Search</span></div><div class="sidebar-scroll"><div class="boost"><span>Boost Goal</span><b id="boostCount">0/36</b><span>›</span></div><div class="side-action">☷ <span>Channels &amp; Roles</span></div><div class="side-action">♢ <span>Server Boosts</span></div><div id="sideChannels"></div></div><div class="user-bar"><div class="user-avatar">N7</div><div><b>NAGI 7⚡</b><small>Idle · mimu</small></div><span>🔔</span></div></aside>
+<main class="workspace" id="home"><div class="workspace-head"><div><div class="eyebrow">COMMUNITY HUB</div><h1>☁ Mellow Cloudy Chill Zone</h1><p id="guildMeta">Discord Community</p></div><div class="head-actions"><a class="action-pill" id="join">Join Server ↗</a><a class="action-pill" href="/api/login">Login</a></div></div>
+<div class="mobile-tabs"><button class="active">Community</button><button>Media</button><button>Pins</button><button>Links</button></div>
+<section class="welcome-card"><div><span class="live-dot"></span> LIVE COMMUNITY</div><h2>Find your cloud. Stay. Chill. Connect.</h2><p>Browse the server exactly by Discord category, open a channel and read its latest messages.</p><div class="welcome-actions"><a class="primary" id="join2">Join the Cloud ↗</a><a class="secondary" href="#channels">Explore Channels</a></div></section>
+<section class="metrics"><div><small>MEMBERS</small><b id="membersCount">—</b></div><div><small>ONLINE</small><b id="onlineCount">—</b></div><div><small>CHANNELS</small><b id="channelsCount">—</b></div><div><small>STATUS</small><b class="online">ONLINE</b></div></section>
+<section id="channels" class="content-section"><div class="section-title"><div><small>01 · NETWORK</small><h2>Channels</h2></div><span>Click a channel for messages</span></div><div id="channelGrid" class="channel-grid"></div></section>
+<section id="roles" class="content-section"><div class="section-title"><div><small>02 · PERMISSIONS</small><h2>Roles</h2></div><span>Live from Discord</span></div><div id="roleGrid" class="role-grid"></div></section>
+<section id="members" class="content-section"><div class="section-title"><div><small>03 · COMMUNITY</small><h2>Members</h2></div><span><b id="onlineMini">—</b> online now</span></div><div id="memberGrid" class="member-grid"></div></section></main>
+<aside class="member-sidebar"><div class="member-title"><b>Members</b><span id="memberTotal">—</span></div><div class="member-search">⌕ Search members</div><div id="memberSideList"></div></aside></div>
+<div id="messageModal" class="modal"><div class="modal-panel"><div class="modal-head"><div><small id="modalCategory">CHANNEL</small><h3 id="modalTitle"># channel</h3></div><button id="closeModal">×</button></div><div id="messageList" class="message-list"></div></div></div>
+<div class="mobile-bottom"><a href="#home" class="active">⌂<small>Home</small></a><a href="#channels">#<small>Channels</small></a><a href="#roles">◇<small>Roles</small></a><a href="/api/login">◉<small>Login</small></a></div><script src="/app.js"></script></body></html>
