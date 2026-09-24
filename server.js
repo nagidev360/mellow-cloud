@@ -11,6 +11,10 @@ app.use(session({secret:process.env.SESSION_SECRET||"change-me",resave:false,sav
 app.use(express.static(path.join(__dirname,"public")));
 const discord=url=>axios.get(url,{headers:{Authorization:"Bot "+process.env.DISCORD_BOT_TOKEN}});
 const discordPost=(url,data={})=>axios.post(url,data,{headers:{Authorization:"Bot "+process.env.DISCORD_BOT_TOKEN,"Content-Type":"application/json"}});
+let discordOAuthBlockedUntil=0;
+let discordOAuthInFlight=false;
+const oauthLoginCooldown=new Map();
+const oauthBlockSeconds=()=>Math.max(1,Math.ceil((discordOAuthBlockedUntil-Date.now())/1000));
 app.get("/api/server",async(_req,res)=>{
  try{
   const id=process.env.DISCORD_GUILD_ID;
@@ -42,8 +46,8 @@ app.get("/api/invite",async(req,res)=>{
   res.redirect("https://discord.gg/"+inv.data.code);
  }catch(e){res.status(500).send("Invite could not be created. Check the bot's Create Invite permission.");}
 });
-app.get("/api/login",(req,res)=>{const p=new URLSearchParams({client_id:process.env.DISCORD_CLIENT_ID||"",response_type:"code",redirect_uri:process.env.DISCORD_REDIRECT_URI||"",scope:"identify guilds"});res.redirect("https://discord.com/oauth2/authorize?"+p)});
-app.get("/api/callback",async(req,res)=>{try{
+app.get("/api/login",(req,res)=>{\n const blocked=oauthBlockSeconds();\n if(blocked>0)return res.status(429).send("Discord OAuth is temporarily rate-limited. Please wait about "+blocked+" seconds before trying again.");\n const key=req.ip||"global",now=Date.now(),last=oauthLoginCooldown.get(key)||0;\n if(now-last<5000)return res.status(429).send("Please wait a few seconds before starting Discord login again.");\n oauthLoginCooldown.set(key,now);\n const p=new URLSearchParams({client_id:process.env.DISCORD_CLIENT_ID||"",response_type:"code",redirect_uri:process.env.DISCORD_REDIRECT_URI||"",scope:"identify guilds"});\n res.redirect("https://discord.com/oauth2/authorize?"+p)\n});
+app.get("/api/callback",async(req,res)=>{\n const blocked=oauthBlockSeconds();\n if(blocked>0)return res.status(429).send("Discord OAuth is temporarily rate-limited. Please wait about "+blocked+" seconds before trying again.");\n if(discordOAuthInFlight)return res.status(429).send("A Discord login is already being processed. Please wait a moment.");\n discordOAuthInFlight=true;\n try{
  if(req.query.error)return res.status(400).send("Discord OAuth error: "+String(req.query.error));
  const clientId=process.env.DISCORD_CLIENT_ID?.trim(),clientSecret=process.env.DISCORD_CLIENT_SECRET?.trim(),redirectUri=process.env.DISCORD_REDIRECT_URI?.trim();
  if(!clientId||!clientSecret||!redirectUri)return res.status(500).send("Discord login is not configured. Check DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET and DISCORD_REDIRECT_URI in Render.");
