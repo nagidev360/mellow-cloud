@@ -44,5 +44,22 @@ app.get("/api/invite",async(req,res)=>{
 });
 app.get("/api/login",(req,res)=>{const p=new URLSearchParams({client_id:process.env.DISCORD_CLIENT_ID||"",response_type:"code",redirect_uri:process.env.DISCORD_REDIRECT_URI||"",scope:"identify guilds"});res.redirect("https://discord.com/oauth2/authorize?"+p)});
 app.get("/api/callback",async(req,res)=>{try{const t=await axios.post("https://discord.com/api/v10/oauth2/token",new URLSearchParams({client_id:process.env.DISCORD_CLIENT_ID,client_secret:process.env.DISCORD_CLIENT_SECRET,grant_type:"authorization_code",code:req.query.code,redirect_uri:process.env.DISCORD_REDIRECT_URI}),{headers:{"Content-Type":"application/x-www-form-urlencoded"}});const me=await axios.get("https://discord.com/api/v10/users/@me",{headers:{Authorization:"Bearer "+t.data.access_token}});req.session.user=me.data;res.redirect("/")}catch(e){res.status(500).send("Discord login failed.")}});
+app.get("/api/admin",async(req,res)=>{try{
+ const guildId=process.env.DISCORD_GUILD_ID;if(!guildId||!process.env.DISCORD_BOT_TOKEN)return res.status(503).json({configured:false});
+ const [g,roles]=await Promise.all([discord("https://discord.com/api/v10/guilds/"+guildId),discord("https://discord.com/api/v10/guilds/"+guildId+"/roles")]);
+ let member=null;
+ if(req.session.user?.id){try{member=(await discord("https://discord.com/api/v10/guilds/"+guildId+"/members/"+req.session.user.id)).data}catch{}}
+ const roleMap=new Map(roles.data.map(r=>[r.id,r]));
+ const permissions=[
+  ["Administrator",8],["Manage Server",32],["Manage Channels",16],["Manage Roles",268435456],
+  ["Kick Members",2],["Ban Members",4],["Moderate Members",1099511627776],["Manage Messages",8192],
+  ["Mention Everyone",131072],["View Audit Log",128]
+ ];
+ const roleDetails=roles.data.filter(r=>!r.managed).sort((a,b)=>b.position-a.position).map(r=>({id:r.id,name:r.name,color:r.color,position:r.position,permissions:permissions.filter(([n,v])=>(BigInt(r.permissions||"0")&BigInt(v))===BigInt(v)).map(x=>x[0]),administrator:(BigInt(r.permissions||"0")&8n)===8n}));
+ const userRoles=(member?.roles||[]).map(id=>roleMap.get(id)).filter(Boolean);
+ const effective=userRoles.reduce((set,r)=>{permissions.forEach(([n,v])=>{if((BigInt(r.permissions||"0")&BigInt(v))===BigInt(v))set.add(n)});return set},new Set());
+ const isOwner=member?.user?.id===g.data.owner_id;
+ res.json({configured:true,guild:{id:g.data.id,name:g.data.name,owner_id:g.data.owner_id},viewer:{loggedIn:!!req.session.user,isMember:!!member,isOwner,roles:userRoles.map(r=>r.name),permissions:[...effective],canManage: isOwner||effective.has("Administrator")||effective.has("Manage Server")},roles:roleDetails});
+}catch(e){res.status(500).json({error:"Administration data unavailable",detail:e.response?.data||e.message})}});
 app.get("/api/me",(req,res)=>res.json({user:req.session.user||null}));
 app.listen(PORT,()=>console.log("Mellow Cloud running on "+PORT));
