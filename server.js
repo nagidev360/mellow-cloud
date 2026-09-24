@@ -54,9 +54,15 @@ app.get("/api/callback",async(req,res)=>{try{
    t=await axios.post("https://discord.com/api/v10/oauth2/token",new URLSearchParams({client_id:clientId,client_secret:clientSecret,grant_type:"authorization_code",code,redirect_uri:redirectUri}),{headers:{"Content-Type":"application/x-www-form-urlencoded"}});
    break;
   }catch(err){
-   if(err.response?.status!==429||attempt===2)throw err;
-   const wait=Math.min(Math.max(Number(err.response?.data?.retry_after||err.response?.headers?.["retry-after"]||2)*1000,1000),15000);
-   await new Promise(resolve=>setTimeout(resolve,wait));
+   if(err.response?.status===429){
+    const retry=Number(err.response?.data?.retry_after||err.response?.headers?.["retry-after"]||60);
+    const wait=Math.min(Math.max(retry,1),3600);
+    if(err.response?.data?.global){
+     throw new Error("Discord is temporarily rate-limiting OAuth requests. Please wait about "+Math.ceil(wait)+" seconds before trying again.");
+    }
+    if(attempt===2)throw err;
+    await new Promise(resolve=>setTimeout(resolve,Math.min(wait*1000,15000)));
+   }else throw err;
   }
  }
  const me=await axios.get("https://discord.com/api/v10/users/@me",{headers:{Authorization:"Bearer "+t.data.access_token}});
