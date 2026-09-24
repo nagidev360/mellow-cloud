@@ -43,7 +43,19 @@ app.get("/api/invite",async(req,res)=>{
  }catch(e){res.status(500).send("Invite could not be created. Check the bot's Create Invite permission.");}
 });
 app.get("/api/login",(req,res)=>{const p=new URLSearchParams({client_id:process.env.DISCORD_CLIENT_ID||"",response_type:"code",redirect_uri:process.env.DISCORD_REDIRECT_URI||"",scope:"identify guilds"});res.redirect("https://discord.com/oauth2/authorize?"+p)});
-app.get("/api/callback",async(req,res)=>{try{const t=await axios.post("https://discord.com/api/v10/oauth2/token",new URLSearchParams({client_id:process.env.DISCORD_CLIENT_ID,client_secret:process.env.DISCORD_CLIENT_SECRET,grant_type:"authorization_code",code:req.query.code,redirect_uri:process.env.DISCORD_REDIRECT_URI}),{headers:{"Content-Type":"application/x-www-form-urlencoded"}});const me=await axios.get("https://discord.com/api/v10/users/@me",{headers:{Authorization:"Bearer "+t.data.access_token}});req.session.user=me.data;res.redirect("/")}catch(e){res.status(500).send("Discord login failed.")}});
+app.get("/api/callback",async(req,res)=>{try{
+ if(req.query.error)return res.status(400).send("Discord OAuth error: "+String(req.query.error));
+ const clientId=process.env.DISCORD_CLIENT_ID?.trim(),clientSecret=process.env.DISCORD_CLIENT_SECRET?.trim(),redirectUri=process.env.DISCORD_REDIRECT_URI?.trim();
+ if(!clientId||!clientSecret||!redirectUri)return res.status(500).send("Discord login is not configured. Check DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET and DISCORD_REDIRECT_URI in Render.");
+ const code=String(req.query.code||"");if(!code)return res.status(400).send("Discord OAuth code is missing.");
+ const t=await axios.post("https://discord.com/api/v10/oauth2/token",new URLSearchParams({client_id:clientId,client_secret:clientSecret,grant_type:"authorization_code",code,redirect_uri:redirectUri}),{headers:{"Content-Type":"application/x-www-form-urlencoded"}});
+ const me=await axios.get("https://discord.com/api/v10/users/@me",{headers:{Authorization:"Bearer "+t.data.access_token}});
+ req.session.user=me.data;res.redirect("/");
+}catch(e){
+ const d=e.response?.data;console.error("Discord OAuth callback failed",{status:e.response?.status,code:d?.error,description:d?.error_description,message:e.message});
+ const reason=d?.error_description||d?.message||e.message||"Unknown OAuth error";
+ res.status(500).send("Discord login failed: "+String(reason));
+}});
 app.get("/api/admin",async(req,res)=>{try{
  const guildId=process.env.DISCORD_GUILD_ID;if(!guildId||!process.env.DISCORD_BOT_TOKEN)return res.status(503).json({configured:false});
  const [g,roles]=await Promise.all([discord("https://discord.com/api/v10/guilds/"+guildId),discord("https://discord.com/api/v10/guilds/"+guildId+"/roles")]);
