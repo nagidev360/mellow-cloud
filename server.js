@@ -48,7 +48,17 @@ app.get("/api/callback",async(req,res)=>{try{
  const clientId=process.env.DISCORD_CLIENT_ID?.trim(),clientSecret=process.env.DISCORD_CLIENT_SECRET?.trim(),redirectUri=process.env.DISCORD_REDIRECT_URI?.trim();
  if(!clientId||!clientSecret||!redirectUri)return res.status(500).send("Discord login is not configured. Check DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET and DISCORD_REDIRECT_URI in Render.");
  const code=String(req.query.code||"");if(!code)return res.status(400).send("Discord OAuth code is missing.");
- const t=await axios.post("https://discord.com/api/v10/oauth2/token",new URLSearchParams({client_id:clientId,client_secret:clientSecret,grant_type:"authorization_code",code,redirect_uri:redirectUri}),{headers:{"Content-Type":"application/x-www-form-urlencoded"}});
+ let t;
+ for(let attempt=0;attempt<3;attempt++){
+  try{
+   t=await axios.post("https://discord.com/api/v10/oauth2/token",new URLSearchParams({client_id:clientId,client_secret:clientSecret,grant_type:"authorization_code",code,redirect_uri:redirectUri}),{headers:{"Content-Type":"application/x-www-form-urlencoded"}});
+   break;
+  }catch(err){
+   if(err.response?.status!==429||attempt===2)throw err;
+   const wait=Math.min(Math.max(Number(err.response?.data?.retry_after||err.response?.headers?.["retry-after"]||2)*1000,1000),15000);
+   await new Promise(resolve=>setTimeout(resolve,wait));
+  }
+ }
  const me=await axios.get("https://discord.com/api/v10/users/@me",{headers:{Authorization:"Bearer "+t.data.access_token}});
  req.session.user=me.data;res.redirect("/");
 }catch(e){
